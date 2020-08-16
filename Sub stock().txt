@@ -1,0 +1,102 @@
+Sub stock()
+
+
+' Create variables
+
+Dim ws As Worksheet
+Dim ticker As String
+Dim volume As String ' As Long is causing runtime overflow errors
+Dim open_price As Double
+Dim close_price As Double
+Dim yearly_change As Double
+Dim percent_change As String 'format function works for strings only
+Dim Summary_Table_Row As Long
+
+' Asign values to the calculated variables and the starting point of summary table row
+
+yearly_change = 0
+percent_change = 0
+volume = 0
+
+
+
+' Setting the headers
+For Each ws In Worksheets
+    ws.Cells(1, 9).Value = "Ticker"
+    ws.Cells(1, 10).Value = "Yearly Change"
+    ws.Cells(1, 11).Value = "Percent Change"
+    ws.Cells(1, 12).Value = "Total Stock Volume"
+    Summary_Table_Row = 2
+    
+    ' Determine the Last Row
+    LastRow = ws.Cells(Rows.Count, 1).End(xlUp).Row
+    
+    ' Starting the loop
+    For i = 2 To LastRow
+        
+          'Dealing with the open_price, choosing the open row to be used with corresponds to the first time a new ticker starts
+    
+            If ws.Cells(i - 1, 1).Value <> ws.Cells(i, 1).Value Then
+            open_price = ws.Cells(i, 3).Value
+            End If
+            
+            If ws.Cells(i + 1, 1).Value <> ws.Cells(i, 1).Value Then
+            ticker = ws.Cells(i, 1).Value
+            close_price = ws.Cells(i, 6).Value
+            yearly_change = close_price - open_price
+            percent_change = yearly_change / (close_price + 1)
+            percent_change = Format(percent_change, "Percent")
+            volume = volume + ws.Cells(i, 7).Value
+            
+           
+                      
+            ' Print the variables in the Summary Table
+           ws.Range("I" & Summary_Table_Row).Value = ticker
+           ws.Range("j" & Summary_Table_Row).Value = yearly_change
+           ws.Range("K" & Summary_Table_Row).Value = percent_change
+           ws.Range("L" & Summary_Table_Row).Value = volume
+            
+           
+                      
+            ' Add one to the summary table row
+              Summary_Table_Row = Summary_Table_Row + 1
+              
+              'Reset the volume
+              volume = 0
+              
+              'until the tickers are the same
+              Else
+              
+              ' add to the volume
+            volume = volume + ws.Cells(i, 7).Value
+            End If
+        Next i
+    
+
+
+    
+ ' Creating a loop for interior color for yearly_change
+
+ 
+
+ For c = 2 To LastRow
+ 
+    If ws.Cells(c, 10).Value >= 0 Then
+    ws.Cells(c, 10).Interior.ColorIndex = 4
+    
+    ElseIf ws.Cells(c, 10).Value < 0 Then
+    ws.Cells(c, 10).Interior.ColorIndex = 3
+    
+     End If
+ Next c
+      
+  'move to next worksheet
+Next ws
+
+End Sub
+
+
+
+
+
+
